@@ -50,17 +50,35 @@ def main(filename):
 main(fname)
 
 #print(gene_dict)
-
 #take titles,
-genes = [k for k in gene_dict]
-numbers = [gene_dict[k] for k in gene_dict]
-
-print(len(genes))
-#print(chromos, numbers)
-
+#genes = [k for k in gene_dict]
+#numbers = [gene_dict[k] for k in gene_dict]
+#print(len(genes))
 #plotly_things(genes, numbers, "WES_VCF_RUN_01",  "Gene", "Variants by Gene")
 #plotly_things(TripleH_rates, "TH_RATES", "rate at which 3 nucleotides are changed instantly within a single codon", "Triple Mutation hit rate histogram", "Rate value")
 
+# --- Sort dict for histo ----- #
+#print(sorted(gene_dict, key=gene_dict.get))
+
+d = gene_dict
+genes, numbers = [], []
+#is this accurate?
+for w in sorted(d, key=d.get, reverse=True):
+  #print(w, d[w])
+  genes.append(w)
+  numbers.append(d[w])
+  
+genes[0] = "UNKNOWN"
+#genes.pop(0)
+#numbers.pop(0)
+
+print("Number of genes:", len(genes), ",Number of variants:", sum(numbers))
+#plotly_things(genes, numbers, "WES_VCF_RUN_01",  "Gene", "Variants by Gene, (Gene n=" + str(len(genes)) + ") (Variants n=" + str(sum(numbers)) + ")")
+#print(*genes[:25], sep="\n")
+
+for i, gene in enumerate(genes[:25]):
+    print(i+1, gene)
+  
 # =============================================================================
 # End of file
 # =============================================================================
