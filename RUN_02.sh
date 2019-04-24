@@ -34,4 +34,5 @@ bwa index genome.fa
 #/media/alexander/Elements/RQ534361(KA)/Data/SQ6981_S1_L00X_MASTER_R1_001.fastq.gz
 #/media/alexander/Elements/RQ534361(KA)/Data/SQ6981_S1_L00X_MASTER_R2_001.fastq.gz
 
+#BWA-Mem mapping, use -M flag to make this alignment Picard friendly (Useful for GATK)
 bwa mem -M -t 7 /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa /media/alexander/Elements/RQ534361-KA/Data/SQ6981_S1_L00X_MASTER_R1_001.fastq.gz /media/alexander/Elements/RQ534361-KA/Data/SQ6981_S1_L00X_MASTER_R2_001.fastq.gz > aligned_SQ6981.sam
