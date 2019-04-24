@@ -28,6 +28,7 @@ fastqc SQ6981_S1_L00X_MASTER_R2_001.fastq.gz
 #Reference Directory: /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta
 #/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa
 
+#Index our hg19 genome fasta (take a while.)
 bwa index genome.fa
 
 #Reads Directory: /media/alexander/Elements/RQ534361-KA/Data
@@ -45,5 +46,8 @@ samtools sort aligned_SQ6981.bam > aligned_sorted_SQ6981.bam
 
 #Index our BAM
 samtools index aligned_sorted_SQ6981.bam
+
+#Alignment flagstats
+samtools flagstat aligned_sorted_SQ6981.bam
 
 
