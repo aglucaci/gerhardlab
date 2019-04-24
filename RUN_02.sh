@@ -11,8 +11,10 @@
 #SQ6981_S1_L003_R2_001.fastq.gz 
 #SQ6981_S1_L004_R2_001.fastq.gz
 
+# Start script 
 clear
 
+# Add title and other info to display here.
 echo . 
 
 #COMBINE RUNS INTO LARGER FASTQ
