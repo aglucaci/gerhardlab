@@ -53,7 +53,7 @@ samtools sort aligned_SQ6981.bam > aligned_sorted_SQ6981.bam
 #Alignment flagstats
 samtools flagstat aligned_sorted_SQ6981.bam > flagstat_aligned_sorted_SQ6981.txt
 
-#Index our BAM
+#Index our sorted BAM
 samtools index aligned_sorted_SQ6981.bam
 
 #FreeBayes
