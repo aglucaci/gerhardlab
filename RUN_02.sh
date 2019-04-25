@@ -46,10 +46,19 @@ samtools view -bS aligned_SQ6981.sam > aligned_SQ6981.bam
 #Sort our BAM file
 samtools sort aligned_SQ6981.bam > aligned_sorted_SQ6981.bam
 
-#Index our BAM
-samtools index aligned_sorted_SQ6981.bam
-
 #Alignment flagstats
 samtools flagstat aligned_sorted_SQ6981.bam > flagstat_aligned_sorted_SQ6981.txt
 
+#Index our BAM
+samtools index aligned_sorted_SQ6981.bam
 
+#FreeBayes
+#https://github.com/ekg/freebayes
+
+#samtools mpileup
+
+#bcftools mpileup
+
+#bcftools call
+
+#varscan
