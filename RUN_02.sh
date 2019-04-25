@@ -81,7 +81,8 @@ samtools index aligned_sorted_SQ6981.bam
 #Alignment flagstats
 samtools flagstat aligned_sorted_SQ6981.bam > flagstat_aligned_sorted_SQ6981.txt
 
-#Markduplicates - samtools
+#MarkDuplicates - samtools
+#MarkDuplicates - Picard
 
 ##########################################################
 # mpileup
