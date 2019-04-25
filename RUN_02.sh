@@ -11,6 +11,9 @@
 #SQ6981_S1_L003_R2_001.fastq.gz 
 #SQ6981_S1_L004_R2_001.fastq.gz
 
+#working directory
+#/media/alexander/Elements/RQ534361-KA/Data
+
 # Start script 
 clear
 
@@ -55,12 +58,16 @@ samtools index aligned_sorted_SQ6981.bam
 
 #FreeBayes
 #https://github.com/ekg/freebayes
-#freebayes -f ref.fa aln.bam >var.vcf
+#freebayes -f ref.fa aln.bam > var.vcf
 freebayes -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_sorted_SQ6981.bam > Freebayes_aligned_sorted_SQ6981.vcf
 
 #samtools mpileup
+#http://samtools.sourceforge.net/mpileup.shtml
+samtools mpileup -E -uf /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_sorted_SQ6981.bam > samtools_aligned_sorted_SQ6981.mpileup
 
 #bcftools mpileup
+#https://samtools.github.io/bcftools/bcftools.html#mpileup
+bcftools mpileup -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_sorted_SQ6981.bam
 
 #bcftools call
 
