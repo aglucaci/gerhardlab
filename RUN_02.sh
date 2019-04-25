@@ -78,6 +78,9 @@ samtools sort aligned_SQ6981.bam > aligned_sorted_SQ6981.bam
 #Index our sorted BAM
 samtools index aligned_sorted_SQ6981.bam
 
+#BEDTools
+bedtools genomecov -ibam aligned_sorted_SQ6981.bam -bg > aligned_sorted_SQ6981.bg
+
 #Alignment flagstats
 samtools flagstat aligned_sorted_SQ6981.bam > flagstat_aligned_sorted_SQ6981.txt
 
