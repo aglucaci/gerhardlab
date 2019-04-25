@@ -54,6 +54,8 @@ samtools index aligned_sorted_SQ6981.bam
 
 #FreeBayes
 #https://github.com/ekg/freebayes
+#freebayes -f ref.fa aln.bam >var.vcf
+freebayes -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_sorted_SQ6981.bam > Freebayes_aligned_sorted_SQ6981.vcf
 
 #samtools mpileup
 
