@@ -81,8 +81,18 @@ samtools index aligned_sorted_SQ6981.bam
 #Alignment flagstats
 samtools flagstat aligned_sorted_SQ6981.bam > flagstat_aligned_sorted_SQ6981.txt
 
-#MarkDuplicates - samtools
-#MarkDuplicates - Picard
+# -- MarkDuplicates - samtools
+#http://www.htslib.org/doc/samtools.html
+# The first sort can be omitted if the file is already name ordered
+samtools sort -n -o aligned_namesorted_SQ6981.bam aligned_SQ6981.bam
+# Add ms and MC tags for markdup to use later
+samtools fixmate -m aligned_namesorted_SQ6981.bam aligned_fixmate_namesorted_SQ6981.bam
+# Markdup needs position order
+samtools sort -o aligned_positionsort_SQ6981.bam aligned_fixmate_namesorted_SQ6981.bam
+# Finally mark duplicates
+samtools markdup aligned_positionsort_SQ6981.bam aligned_markdup_SQ6981.bam
+
+# -- MarkDuplicates - Picard
 
 ##########################################################
 # mpileup
