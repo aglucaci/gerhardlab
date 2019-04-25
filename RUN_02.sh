@@ -17,16 +17,37 @@
 # Start script 
 clear
 
+##########################################################
 # Add title and other info to display here.
+##########################################################
+
 echo . 
+
+##########################################################
+# Data integrity check - sha256, done in another file.
+##########################################################
+
+# See other script.
+
+##########################################################
+# Combine fastq files 
+##########################################################
 
 #COMBINE RUNS INTO LARGER FASTQ
 cat SQ6981_S1_L001_R1_001.fastq.gz SQ6981_S1_L002_R1_001.fastq.gz SQ6981_S1_L003_R1_001.fastq.gz SQ6981_S1_L004_R1_001.fastq.gz > SQ6981_S1_L00X_MASTER_R1_001.fastq.gz
 cat SQ6981_S1_L001_R2_001.fastq.gz SQ6981_S1_L002_R2_001.fastq.gz SQ6981_S1_L003_R2_001.fastq.gz SQ6981_S1_L004_R2_001.fastq.gz > SQ6981_S1_L00X_MASTER_R2_001.fastq.gz
 
+##########################################################
+# FASTQ Quality Checking
+##########################################################
+
 #RUN FASTQC
 fastqc SQ6981_S1_L00X_MASTER_R1_001.fastq.gz
 fastqc SQ6981_S1_L00X_MASTER_R2_001.fastq.gz
+
+##########################################################
+# Mapping
+##########################################################
 
 #Mapping
 #Reference downloaded Illumina iGenomes hg19
@@ -47,19 +68,24 @@ bwa mem -M -t 7 /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UC
 #SAM to BAM
 samtools view -bS aligned_SQ6981.sam > aligned_SQ6981.bam
 
+##########################################################
+# MarkDuplicates & Sorting
+##########################################################
+
 #Sort our BAM file
 samtools sort aligned_SQ6981.bam > aligned_sorted_SQ6981.bam
-
-#Alignment flagstats
-samtools flagstat aligned_sorted_SQ6981.bam > flagstat_aligned_sorted_SQ6981.txt
 
 #Index our sorted BAM
 samtools index aligned_sorted_SQ6981.bam
 
-#FreeBayes
-#https://github.com/ekg/freebayes
-#freebayes -f ref.fa aln.bam > var.vcf
-freebayes -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_sorted_SQ6981.bam > Freebayes_aligned_sorted_SQ6981.vcf
+#Alignment flagstats
+samtools flagstat aligned_sorted_SQ6981.bam > flagstat_aligned_sorted_SQ6981.txt
+
+#Markduplicates - samtools
+
+##########################################################
+# mpileup
+##########################################################
 
 #samtools mpileup
 #http://samtools.sourceforge.net/mpileup.shtml
@@ -69,8 +95,31 @@ samtools mpileup -E -uf /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sa
 #https://samtools.github.io/bcftools/bcftools.html#mpileup
 bcftools mpileup -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_sorted_SQ6981.bam
 
+##########################################################
+# Variant Calling
+##########################################################
+
+#FreeBayes
+#https://github.com/ekg/freebayes
+#freebayes -f ref.fa aln.bam > var.vcf
+freebayes -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_sorted_SQ6981.bam > Freebayes_aligned_sorted_SQ6981.vcf
+
 #bcftools call
 bcftools call -v -m SQ8992_L001_R1_R2_hg38_sorted.mpileup > SQ8992_L001_R1_R2_hg38_sorted.mpileup_variants.vcf
 
-
 #varscan
+
+#naive variant caller
+
+#GATK
+
+##########################################################
+# Filtering
+##########################################################
+
+
+##########################################################
+# End of Script.
+##########################################################
+
+
