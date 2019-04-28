@@ -130,7 +130,9 @@ bcftools call -v -m samtools_aligned_markdup_SQ6981.mpileup > samtools_aligned_m
 #naive variant caller
 
 #GATK
-
+#USING GATK 4.1.0.0 - https://software.broadinstitute.org/gatk/documentation/tooldocs/4.1.0.0/org_broadinstitute_hellbender_tools_walkers_haplotypecaller_HaplotypeCaller.php
+./gatk --java-options "-Xmx4g" HaplotypeCaller -R chr9_1m.fasta -I sorted_output.bam -O output.vcf -bamout bamout.bam
+  
 ##########################################################
 # Filtering
 ##########################################################
