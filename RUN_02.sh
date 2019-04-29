@@ -73,12 +73,13 @@ samtools view -bS aligned_SQ6981.sam > aligned_SQ6981.bam
 ##########################################################
 
 #Sort our BAM file
+#http://www.htslib.org/doc/samtools-1.1.html
 samtools sort aligned_SQ6981.bam > aligned_sorted_SQ6981.bam
 
 #Index our sorted BAM
 samtools index aligned_sorted_SQ6981.bam
 
-#BEDTools
+#BEDTools - Generate a bedgraph of coverage
 bedtools genomecov -ibam aligned_sorted_SQ6981.bam -bg > aligned_sorted_SQ6981.bg
 
 #Alignment flagstats
