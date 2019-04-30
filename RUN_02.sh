@@ -142,7 +142,7 @@ bcftools call -v -m bcftools_aligned_markdup_SQ6981.mpileup > bcftools_aligned_m
 
 #naive variant caller
 
-#GATK
+## --- GATK --- ##
 #USING GATK 4.1.1.0 - https://software.broadinstitute.org/gatk/documentation/tooldocs/4.1.1.0/
 #On ubuntu deploy - /home/alexander/Downloads/gatk-4.1.1.0
 #http://broadinstitute.github.io/picard/command-line-overview.html#ValidateSamFile
@@ -150,6 +150,7 @@ java -jar picard.jar ValidateSamFile I=/media/alexander/Elements/RQ534361-KA/Ana
 #https://software.broadinstitute.org/gatk/documentation/tooldocs/4.0.0.0/picard_sam_AddOrReplaceReadGroups.php
 java -jar picard.jar AddOrReplaceReadGroups I=/media/alexander/Elements/RQ534361-KA/Analysis/aligned_markdup_SQ6981.bam O=/media/alexander/Elements/RQ534361-KA/Analysis/AddOrReplaceReadGroups_aligned_markdup_SQ6981.bam RGID=4 RGLB=lib1 RGPL=illumina RGPU=unit1 RGSM=20
 
+#GATK seems to only run on Java8 - https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-on-ubuntu-18-04
 ./gatk --java-options "-Xmx4g" HaplotypeCaller -R /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa -I /media/alexander/Elements/RQ534361-KA/Analysis/aligned_markdup_SQ6981.bam -O GATK_output.vcf -bamout GATK_bamout.bam
 ./gatk --java-options "-Xmx4g" HaplotypeCaller -R /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa -I /media/alexander/Elements/RQ534361-KA/Analysis/AddOrReplaceReadGroups_aligned_markdup_SQ6981.bam -O GATK_output.vcf -bamout GATK_bamout.bam
   
