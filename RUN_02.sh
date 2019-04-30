@@ -126,7 +126,8 @@ bcftools mpileup -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sa
 # Variant Calling
 ##########################################################
 
-#FreeBayes
+#FreeBayes 
+#Input: as BAM
 #https://github.com/ekg/freebayes
 #freebayes -f ref.fa aln.bam > var.vcf
 freebayes -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_sorted_SQ6981.bam > Freebayes_aligned_sorted_SQ6981.vcf
@@ -134,19 +135,29 @@ freebayes -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/
 #freebayes -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa -@ /media/alexander/Elements/RQ534361-KA/Analysis/samtools_aligned_markdup_SQ6981.mpileup > Freebayes_samtools_aligned_markdup_SQ6981.mpileup.vcf
 
 #bcftools call - https://samtools.github.io/bcftools/bcftools.html
+#Input: bcftools mpileup
 bcftools call -v -m SQ8992_L001_R1_R2_hg38_sorted.mpileup > SQ8992_L001_R1_R2_hg38_sorted.mpileup_variants.vcf
 bcftools call -v -m samtools_aligned_markdup_SQ6981.mpileup > samtools_aligned_markdup_SQ6981.mpileup_variants.vcf
 bcftools call -v -m bcftools_aligned_markdup_SQ6981.mpileup > bcftools_aligned_markdup_SQ6981.mpileup_variants.vcf
 
 #VarScan - http://varscan.sourceforge.net/using-varscan.html
-varscan mpileup2snp samtools_aligned_markdup_SQ6981.mpileup --min-coverage 30 --output-vcf 1 > varscan_samtools_aligned_markdup_SQ6981.mpileup.vcf
+#v2.4.3 seems to not like samtools mpileup, using bcftools
+#Input: bcftools mpileup
+#varscan mpileup2snp samtools_aligned_markdup_SQ6981.mpileup --min-coverage 30 --output-vcf 1 > varscan_samtools_aligned_markdup_SQ6981.mpileup.vcf
 varscan mpileup2snp bcftools_aligned_markdup_SQ6981.mpileup --min-coverage 30 --output-vcf 1 > varscan_bcftools_aligned_markdup_SQ6981.mpileup.vcf
-varscan mpileup2indel samtools_aligned_markdup_SQ6981.mpileup --min-coverage 30
-#naive variant caller
+
+#varscan mpileup2indel samtools_aligned_markdup_SQ6981.mpileup --min-coverage 30
+varscan mpileup2indel bcftools_aligned_markdup_SQ6981.mpileup --min-coverage 30
+
+#VarScan - Combine the varscan vcf's
+
+#Naive Variant Caller
 
 ## --- GATK --- ##
 #USING GATK 4.1.1.0 - https://software.broadinstitute.org/gatk/documentation/tooldocs/4.1.1.0/
 #On ubuntu deploy - /home/alexander/Downloads/gatk-4.1.1.0
+#Input: as BAM
+
 #http://broadinstitute.github.io/picard/command-line-overview.html#ValidateSamFile
 java -jar picard.jar ValidateSamFile I=/media/alexander/Elements/RQ534361-KA/Analysis/aligned_markdup_SQ6981.bam MODE=SUMMARY
 #https://software.broadinstitute.org/gatk/documentation/tooldocs/4.0.0.0/picard_sam_AddOrReplaceReadGroups.php
@@ -155,9 +166,14 @@ java -jar picard.jar AddOrReplaceReadGroups I=/media/alexander/Elements/RQ534361
 #GATK seems to only run on Java8 - https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-on-ubuntu-18-04
 ./gatk --java-options "-Xmx4g" HaplotypeCaller -R /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa -I /media/alexander/Elements/RQ534361-KA/Analysis/aligned_markdup_SQ6981.bam -O GATK_output.vcf -bamout GATK_bamout.bam
 ./gatk --java-options "-Xmx4g" HaplotypeCaller -R /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa -I /media/alexander/Elements/RQ534361-KA/Analysis/AddOrReplaceReadGroups_aligned_markdup_SQ6981.bam -O GATK_output.vcf -bamout GATK_bamout.bam
-  
+./gatk --java-options "-Xmx4g" HaplotypeCaller -R /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa -I /media/alexander/Elements/RQ534361-KA/Analysis/AddOrReplaceReadGroups_aligned_markdup_SQ6981.bam -O GATK_output.vcf.gz -bamout GATK_bamout.bam
+
 ##########################################################
 # Filtering
+##########################################################
+
+##########################################################
+# VCF Intersects
 ##########################################################
 
 ##########################################################
@@ -165,9 +181,12 @@ java -jar picard.jar AddOrReplaceReadGroups I=/media/alexander/Elements/RQ534361
 ##########################################################
 
 ##########################################################
-# VCF Intersects
+# Annotation - Filtering
 ##########################################################
 
+##########################################################
+# Plots
+##########################################################
 
 ##########################################################
 # End of Script.
