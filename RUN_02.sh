@@ -11,6 +11,9 @@
 #SQ6981_S1_L003_R2_001.fastq.gz 
 #SQ6981_S1_L004_R2_001.fastq.gz
 
+#Strategies
+#https://software.broadinstitute.org/gatk/best-practices/
+
 #working directory
 #/media/alexander/Elements/RQ534361-KA/Data
 
@@ -114,8 +117,9 @@ samtools mpileup -E -uf /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sa
 
 #bcftools mpileup
 #https://samtools.github.io/bcftools/bcftools.html#mpileup
-bcftools mpileup -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_sorted_SQ6981.bam
-bcftools mpileup -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam
+#https://www.biostars.org/p/335121/
+bcftools mpileup -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_sorted_SQ6981.bam > bcftools_aligned_sorted_SQ6981.mpileup 
+bcftools mpileup -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam > bcftools_aligned_markdup_SQ6981.mpileup 
 
 ##########################################################
 # Variant Calling
@@ -126,21 +130,23 @@ bcftools mpileup -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sa
 #freebayes -f ref.fa aln.bam > var.vcf
 freebayes -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_sorted_SQ6981.bam > Freebayes_aligned_sorted_SQ6981.vcf
 
-#bcftools call
+#bcftools call - https://samtools.github.io/bcftools/bcftools.html
 bcftools call -v -m SQ8992_L001_R1_R2_hg38_sorted.mpileup > SQ8992_L001_R1_R2_hg38_sorted.mpileup_variants.vcf
 bcftools call -v -m samtools_aligned_markdup_SQ6981.mpileup > samtools_aligned_markdup_SQ6981.mpileup_variants.vcf
 
-#varscan
+#VarScan - http://varscan.sourceforge.net/using-varscan.html
 
 #naive variant caller
 
 #GATK
-#USING GATK 4.1.0.0 - https://software.broadinstitute.org/gatk/documentation/tooldocs/4.1.0.0/org_broadinstitute_hellbender_tools_walkers_haplotypecaller_HaplotypeCaller.php
+#USING GATK 4.1.1.0 - https://software.broadinstitute.org/gatk/documentation/tooldocs/4.1.1.0/
+#On ubuntu deploy - /home/alexander/Downloads/gatk-4.1.1.0
 ./gatk --java-options "-Xmx4g" HaplotypeCaller -R chr9_1m.fasta -I sorted_output.bam -O output.vcf -bamout bamout.bam
   
 ##########################################################
 # Filtering
 ##########################################################
+bcftools view my.var.bcf | vcfutils.pl varFilter - > my.var-final.vcf
 
 ##########################################################
 # Annotation
