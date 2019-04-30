@@ -139,7 +139,9 @@ bcftools call -v -m samtools_aligned_markdup_SQ6981.mpileup > samtools_aligned_m
 bcftools call -v -m bcftools_aligned_markdup_SQ6981.mpileup > bcftools_aligned_markdup_SQ6981.mpileup_variants.vcf
 
 #VarScan - http://varscan.sourceforge.net/using-varscan.html
-
+varscan mpileup2snp samtools_aligned_markdup_SQ6981.mpileup --min-coverage 30 --output-vcf 1 > varscan_samtools_aligned_markdup_SQ6981.mpileup.vcf
+varscan mpileup2snp bcftools_aligned_markdup_SQ6981.mpileup --min-coverage 30 --output-vcf 1 > varscan_bcftools_aligned_markdup_SQ6981.mpileup.vcf
+varscan mpileup2indel samtools_aligned_markdup_SQ6981.mpileup --min-coverage 30
 #naive variant caller
 
 ## --- GATK --- ##
