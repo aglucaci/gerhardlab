@@ -66,7 +66,7 @@ bwa index genome.fa
 
 #BWA-Mem mapping, use -M flag to make this alignment Picard friendly (Useful for GATK)
 #bwa mem -t 7 /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa /media/alexander/Elements/RQ534361-KA/Data/SQ6981_S1_L00X_MASTER_R1_001.fastq.gz /media/alexander/Elements/RQ534361-KA/Data/SQ6981_S1_L00X_MASTER_R2_001.fastq.gz > aligned_SQ6981.sam
-bwa mem -M -t 7 /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa /media/alexander/Elements/RQ534361-KA/Data/SQ6981_S1_L00X_MASTER_R1_001.fastq.gz /media/alexander/Elements/RQ534361-KA/Data/SQ6981_S1_L00X_MASTER_R2_001.fastq.gz > aligned_SQ6981.sam
+bwa mem -M -t 7 /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa /media/alexander/Elements/RQ534361-KA/Data/SQ6981_S1_L00X_MASTER_R1_001.fastq.gz /media/alexander/Elements/RQ534361-KA/Data/SQ6981_S1_L00X_MASTER_R2_001.fastq.gz > aligned_M_SQ6981.sam
 
 #SAM to BAM
 samtools view -bS aligned_SQ6981.sam > aligned_SQ6981.bam
@@ -78,6 +78,7 @@ samtools view -bS aligned_SQ6981.sam > aligned_SQ6981.bam
 #Sort our BAM file
 #http://www.htslib.org/doc/samtools-1.1.html
 samtools sort aligned_SQ6981.bam > aligned_sorted_SQ6981.bam
+#NameSort the BAM file
 samtools sort -n -o aligned_namesorted_SQ6981.bam aligned_SQ6981.bam
 
 #Index our sorted BAM
@@ -106,7 +107,7 @@ samtools markdup aligned_positionsort_SQ6981.bam aligned_markdup_SQ6981.bam
 # -- MarkDuplicates - Picard
 
 ##########################################################
-# mpileup
+# mpileup - makes genotype likelihood calls, does not do variant calling
 ##########################################################
 
 #samtools mpileup
@@ -129,10 +130,13 @@ bcftools mpileup -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sa
 #https://github.com/ekg/freebayes
 #freebayes -f ref.fa aln.bam > var.vcf
 freebayes -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_sorted_SQ6981.bam > Freebayes_aligned_sorted_SQ6981.vcf
+freebayes -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa /media/alexander/Elements/RQ534361-KA/Analysis/aligned_markdup_SQ6981.bam > Freebayes_aligned_markdup_SQ6981.bam.vcf
+#freebayes -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa -@ /media/alexander/Elements/RQ534361-KA/Analysis/samtools_aligned_markdup_SQ6981.mpileup > Freebayes_samtools_aligned_markdup_SQ6981.mpileup.vcf
 
 #bcftools call - https://samtools.github.io/bcftools/bcftools.html
 bcftools call -v -m SQ8992_L001_R1_R2_hg38_sorted.mpileup > SQ8992_L001_R1_R2_hg38_sorted.mpileup_variants.vcf
 bcftools call -v -m samtools_aligned_markdup_SQ6981.mpileup > samtools_aligned_markdup_SQ6981.mpileup_variants.vcf
+bcftools call -v -m bcftools_aligned_markdup_SQ6981.mpileup > bcftools_aligned_markdup_SQ6981.mpileup_variants.vcf
 
 #VarScan - http://varscan.sourceforge.net/using-varscan.html
 
@@ -141,12 +145,13 @@ bcftools call -v -m samtools_aligned_markdup_SQ6981.mpileup > samtools_aligned_m
 #GATK
 #USING GATK 4.1.1.0 - https://software.broadinstitute.org/gatk/documentation/tooldocs/4.1.1.0/
 #On ubuntu deploy - /home/alexander/Downloads/gatk-4.1.1.0
-./gatk --java-options "-Xmx4g" HaplotypeCaller -R chr9_1m.fasta -I sorted_output.bam -O output.vcf -bamout bamout.bam
+#http://broadinstitute.github.io/picard/command-line-overview.html#ValidateSamFile
+java -jar picard.jar ValidateSamFile I=/media/alexander/Elements/RQ534361-KA/Analysis/aligned_markdup_SQ6981.bam MODE=SUMMARY
+./gatk --java-options "-Xmx4g" HaplotypeCaller -R /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa -I /media/alexander/Elements/RQ534361-KA/Analysis/aligned_markdup_SQ6981.bam -O GATK_output.vcf -bamout GATK_bamout.bam
   
 ##########################################################
 # Filtering
 ##########################################################
-bcftools view my.var.bcf | vcfutils.pl varFilter - > my.var-final.vcf
 
 ##########################################################
 # Annotation
