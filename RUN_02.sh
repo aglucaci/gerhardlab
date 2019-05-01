@@ -11,6 +11,12 @@
 #SQ6981_S1_L003_R2_001.fastq.gz 
 #SQ6981_S1_L004_R2_001.fastq.gz
 
+#Computer: this script is configured to run on the ubuntu-deploy server.
+#java -version
+#openjdk version "1.8.0_191"
+#OpenJDK Runtime Environment (build 1.8.0_191-8u191-b12-2ubuntu0.18.04.1-b12)
+#OpenJDK 64-Bit Server VM (build 25.191-b12, mixed mode)
+
 #Strategies
 #https://software.broadinstitute.org/gatk/best-practices/
 
@@ -45,6 +51,7 @@ cat SQ6981_S1_L001_R2_001.fastq.gz SQ6981_S1_L002_R2_001.fastq.gz SQ6981_S1_L003
 ##########################################################
 
 #RUN FASTQC
+#Version 0.11.5
 fastqc SQ6981_S1_L00X_MASTER_R1_001.fastq.gz
 fastqc SQ6981_S1_L00X_MASTER_R2_001.fastq.gz
 
@@ -63,6 +70,7 @@ fastqc SQ6981_S1_L00X_MASTER_R2_001.fastq.gz
 #/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa
 
 #Index our hg19 genome fasta (take a while.)
+#Version: 0.7.17-r1188
 bwa index genome.fa
 
 #Reads Directory: /media/alexander/Elements/RQ534361-KA/Data
@@ -70,10 +78,12 @@ bwa index genome.fa
 #/media/alexander/Elements/RQ534361-KA/Data/SQ6981_S1_L00X_MASTER_R2_001.fastq.gz
 
 #BWA-Mem mapping, use -M flag to make this alignment Picard friendly (Useful for GATK)
+#Version: 0.7.17-r1188
 #bwa mem -t 7 /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa /media/alexander/Elements/RQ534361-KA/Data/SQ6981_S1_L00X_MASTER_R1_001.fastq.gz /media/alexander/Elements/RQ534361-KA/Data/SQ6981_S1_L00X_MASTER_R2_001.fastq.gz > aligned_SQ6981.sam
 bwa mem -M -t 7 /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa /media/alexander/Elements/RQ534361-KA/Data/SQ6981_S1_L00X_MASTER_R1_001.fastq.gz /media/alexander/Elements/RQ534361-KA/Data/SQ6981_S1_L00X_MASTER_R2_001.fastq.gz > aligned_M_SQ6981.sam
 
 #SAM to BAM
+#Version: 1.7 (using htslib 1.7-2)
 samtools view -bS aligned_SQ6981.sam > aligned_SQ6981.bam
 
 ##########################################################
@@ -81,24 +91,29 @@ samtools view -bS aligned_SQ6981.sam > aligned_SQ6981.bam
 ##########################################################
 
 #Sort our BAM file
+#Version: 1.7 (using htslib 1.7-2)
 #http://www.htslib.org/doc/samtools-1.1.html
 samtools sort aligned_SQ6981.bam > aligned_sorted_SQ6981.bam
 #NameSort the BAM file
 samtools sort -n -o aligned_namesorted_SQ6981.bam aligned_SQ6981.bam
 
 #Index our sorted BAM
+#Version: 1.7 (using htslib 1.7-2)
 #samtools index aligned_sorted_SQ6981.bam
 samtools index aligned_namesorted_SQ6981.bam
 
 #BEDTools - Generate a bedgraph of coverage
+#Version:   v2.26.0
 bedtools genomecov -ibam aligned_sorted_SQ6981.bam -bg > aligned_sorted_SQ6981.bg
 bedtools genomecov -ibam aligned_namesorted_SQ6981.bam -bg > aligned_namesorted_SQ6981.bg
 
 #Alignment flagstats
+#Version: 1.7 (using htslib 1.7-2)
 samtools flagstat aligned_sorted_SQ6981.bam > flagstat_aligned_sorted_SQ6981.txt
 samtools flagstat aligned_namesorted_SQ6981.bam > flagstat_aligned_namesorted_SQ6981.txt
 
 # -- MarkDuplicates - samtools
+#Version: 1.7 (using htslib 1.7-2)
 #http://www.htslib.org/doc/samtools.html
 # The first sort can be omitted if the file is already name ordered
 #samtools sort -n -o aligned_namesorted_SQ6981.bam aligned_SQ6981.bam
@@ -116,12 +131,14 @@ samtools markdup aligned_positionsort_SQ6981.bam aligned_markdup_SQ6981.bam
 ##########################################################
 
 #samtools mpileup
+#Version: 1.7 (using htslib 1.7-2)
 #http://samtools.sourceforge.net/mpileup.shtml
 samtools mpileup -E -uf /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_sorted_SQ6981.bam > samtools_aligned_sorted_SQ6981.mpileup
 #MarkDuplicates Version  
 samtools mpileup -E -uf /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam > samtools_aligned_markdup_SQ6981.mpileup
 
 #bcftools mpileup
+#Version: 1.7 (using htslib 1.7-2)
 #https://samtools.github.io/bcftools/bcftools.html#mpileup
 #https://www.biostars.org/p/335121/
 bcftools mpileup -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_sorted_SQ6981.bam > bcftools_aligned_sorted_SQ6981.mpileup 
@@ -132,6 +149,7 @@ bcftools mpileup --threads 6 -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_
 ##########################################################
 
 #FreeBayes 
+#version:  v1.0.0
 #Input: as BAM
 #https://github.com/ekg/freebayes
 #freebayes -f ref.fa aln.bam > var.vcf
@@ -140,6 +158,7 @@ freebayes -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/
 #freebayes -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa -@ /media/alexander/Elements/RQ534361-KA/Analysis/samtools_aligned_markdup_SQ6981.mpileup > Freebayes_samtools_aligned_markdup_SQ6981.mpileup.vcf
 
 #bcftools call - https://samtools.github.io/bcftools/bcftools.html
+#Version: 1.7 (using htslib 1.7-2)
 #Input: bcftools mpileup
 bcftools call -v -m SQ8992_L001_R1_R2_hg38_sorted.mpileup > SQ8992_L001_R1_R2_hg38_sorted.mpileup_variants.vcf
 bcftools call -v -m samtools_aligned_markdup_SQ6981.mpileup > samtools_aligned_markdup_SQ6981.mpileup_variants.vcf
@@ -164,6 +183,8 @@ varscan mpileup2indel bcftools_aligned_markdup_SQ6981.mpileup --min-coverage 30
 #Input: as BAM
 
 #http://broadinstitute.github.io/picard/command-line-overview.html#ValidateSamFile
+#Picard - https://github.com/broadinstitute/picard/releases/tag/2.20.0
+#Version 2.20.0
 java -jar picard.jar ValidateSamFile I=/media/alexander/Elements/RQ534361-KA/Analysis/aligned_markdup_SQ6981.bam MODE=SUMMARY
 #https://software.broadinstitute.org/gatk/documentation/tooldocs/4.0.0.0/picard_sam_AddOrReplaceReadGroups.php
 java -jar picard.jar AddOrReplaceReadGroups I=/media/alexander/Elements/RQ534361-KA/Analysis/aligned_markdup_SQ6981.bam O=/media/alexander/Elements/RQ534361-KA/Analysis/AddOrReplaceReadGroups_aligned_markdup_SQ6981.bam RGID=4 RGLB=lib1 RGPL=illumina RGPU=unit1 RGSM=20
@@ -176,6 +197,7 @@ java -jar picard.jar AddOrReplaceReadGroups I=/media/alexander/Elements/RQ534361
 ##########################################################
 # Filtering
 ##########################################################
+#Version: 1.7 (using htslib 1.7-2)
 bcftools filter -s LowQual -e '%QUAL<20 || DP>100' > var.flt.vcf
 
 ##########################################################
