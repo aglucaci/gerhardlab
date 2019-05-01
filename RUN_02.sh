@@ -104,8 +104,8 @@ samtools index aligned_namesorted_SQ6981.bam
 
 #BEDTools - Generate a bedgraph of coverage
 #Version:   v2.26.0
-bedtools genomecov -ibam aligned_sorted_SQ6981.bam -bg > aligned_sorted_SQ6981.bg
-bedtools genomecov -ibam aligned_namesorted_SQ6981.bam -bg > aligned_namesorted_SQ6981.bg
+bedtools genomecov -ibam aligned_sorted_SQ6981.bam -bg > aligned_sorted_SQ6981.bedgraph
+bedtools genomecov -ibam aligned_namesorted_SQ6981.bam -bg > aligned_namesorted_SQ6981.bedgraph
 
 #Alignment flagstats
 #Version: 1.7 (using htslib 1.7-2)
