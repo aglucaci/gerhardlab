@@ -143,7 +143,7 @@ samtools mpileup -E -uf /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sa
 #https://www.biostars.org/p/335121/
 bcftools mpileup -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_sorted_SQ6981.bam > bcftools_aligned_sorted_SQ6981.mpileup 
 bcftools mpileup --threads 6 -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam > bcftools_aligned_markdup_SQ6981.mpileup 
-
+bcftools mpileup --threads 6 -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | bcftools call --threads 6 -Ov -mv > bcftools_aligned_markdup_SQ6981.mpileup.vcf
 ##########################################################
 # Variant Calling
 ##########################################################
