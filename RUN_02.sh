@@ -209,6 +209,11 @@ java -jar picard.jar AddOrReplaceReadGroups I=/media/alexander/Elements/RQ534361
 ./gatk --java-options "-Xmx4g" HaplotypeCaller -R /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa -I /media/alexander/Elements/RQ534361-KA/Analysis/AddOrReplaceReadGroups_aligned_markdup_SQ6981.bam -O GATK_output.vcf.gz -bamout GATK_bamout.bam
 
 ##########################################################
+# VCF Statistics
+##########################################################
+bcftools stats SQ6981_S1.vcf | head -n 30
+
+##########################################################
 # Filtering
 ##########################################################
 #Version: 1.7 (using htslib 1.7-2)
