@@ -46,6 +46,13 @@ echo .
 cat SQ6981_S1_L001_R1_001.fastq.gz SQ6981_S1_L002_R1_001.fastq.gz SQ6981_S1_L003_R1_001.fastq.gz SQ6981_S1_L004_R1_001.fastq.gz > SQ6981_S1_L00X_MASTER_R1_001.fastq.gz
 cat SQ6981_S1_L001_R2_001.fastq.gz SQ6981_S1_L002_R2_001.fastq.gz SQ6981_S1_L003_R2_001.fastq.gz SQ6981_S1_L004_R2_001.fastq.gz > SQ6981_S1_L00X_MASTER_R2_001.fastq.gz
 
+
+##########################################################
+# FASTQ to uBAM
+##########################################################
+java -jar /home/alexander/Downloads/picard.jar FastqToSam F1=SQ6981_S1_L00X_MASTER_R1_001.fastq.gz O=SQ6981_S1_L00X_MASTER_R1_001.unmapped.bam SM=SQ6981_R1
+java -jar /home/alexander/Downloads/picard.jar FastqToSam F1=SQ6981_S1_L00X_MASTER_R2_001.fastq.gz O=SQ6981_S1_L00X_MASTER_R2_001.unmapped.bam SM=SQ6981_R2
+
 ##########################################################
 # FASTQ Quality Checking
 ##########################################################
@@ -143,7 +150,7 @@ samtools mpileup -E -uf /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sa
 #https://www.biostars.org/p/335121/
 bcftools mpileup -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_sorted_SQ6981.bam > bcftools_aligned_sorted_SQ6981.mpileup 
 bcftools mpileup --threads 6 -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam > bcftools_aligned_markdup_SQ6981.mpileup 
-bcftools mpileup --threads 6 -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | bcftools call --threads 6 -Ov -mv > bcftools_aligned_markdup_SQ6981.mpileup.vcf
+
 ##########################################################
 # Variant Calling
 ##########################################################
@@ -163,6 +170,7 @@ freebayes -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/
 bcftools call -v -m SQ8992_L001_R1_R2_hg38_sorted.mpileup > SQ8992_L001_R1_R2_hg38_sorted.mpileup_variants.vcf
 bcftools call -v -m samtools_aligned_markdup_SQ6981.mpileup > samtools_aligned_markdup_SQ6981.mpileup_variants.vcf
 bcftools call -v -m bcftools_aligned_markdup_SQ6981.mpileup > bcftools_aligned_markdup_SQ6981.mpileup_variants.vcf
+bcftools mpileup --threads 6 -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | bcftools call --threads 6 -Ov -mv > take2_bcftools_aligned_markdup_SQ6981.mpileup.vcf
 
 #VarScan - http://varscan.sourceforge.net/using-varscan.html
 #v2.4.3 seems to not like samtools mpileup, using bcftools
@@ -171,11 +179,13 @@ bcftools call -v -m bcftools_aligned_markdup_SQ6981.mpileup > bcftools_aligned_m
 #varscan mpileup2snp samtools_aligned_markdup_SQ6981.mpileup --min-coverage 30 --output-vcf 1 > varscan_samtools_aligned_markdup_SQ6981.mpileup.vcf
 #varscan mpileup2snp bcftools_aligned_markdup_SQ6981.mpileup --min-coverage 30 --output-vcf 1 > varscan_bcftools_aligned_markdup_SQ6981.mpileup.vcf
 #bcftools mpileup --threads 6 -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2indel > varscan_indel_bcftools_aligned_markdup_SQ6981.mpileup.vcf 
-bcftools mpileup -uf /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2snp > varscan_snp_bcftools_aligned_markdup_SQ6981.mpileup.vcf
+bcftools mpileup -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2snp > varscan_snp_bcftools_aligned_markdup_SQ6981.mpileup.vcf
+samtools mpileup -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2snp > varscan_snp_bcftools_aligned_markdup_SQ6981.mpileup.vcf
 
 #varscan mpileup2indel samtools_aligned_markdup_SQ6981.mpileup --min-coverage 30
 #varscan mpileup2indel bcftools_aligned_markdup_SQ6981.mpileup --min-coverage 30
 bcftools mpileup -uf /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2indel > varscan_indel_bcftools_aligned_markdup_SQ6981.mpileup.vcf
+samtools mpileup -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2indel > varscan_indel_bcftools_aligned_markdup_SQ6981.mpileup.vcf
 
 #VarScan - Combine the varscan vcf's
 
@@ -202,11 +212,12 @@ java -jar picard.jar AddOrReplaceReadGroups I=/media/alexander/Elements/RQ534361
 # Filtering
 ##########################################################
 #Version: 1.7 (using htslib 1.7-2)
-bcftools filter -s LowQual -e '%QUAL<20 || DP>100' > var.flt.vcf
+#bcftools filter -s LowQual -e '%QUAL<20 || DP>100' > var.flt.vcf
 
 ##########################################################
 # VCF Intersects
 ##########################################################
+#https://samtools.github.io/bcftools/bcftools.html#isec
 
 ##########################################################
 # Annotation
