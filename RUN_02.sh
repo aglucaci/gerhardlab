@@ -191,7 +191,7 @@ freebayes -C 30 -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens
 #bcftools call -v -m bcftools_aligned_markdup_SQ6981.mpileup > bcftools_aligned_markdup_SQ6981.mpileup_variants.vcf
 bcftools mpileup --threads 6 -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | bcftools call --threads 6 -Ov -mv > bcftools_aligned_markdup_SQ6981.mpileup.vcf
 #30X
-bcftools mpileup --threads 6 -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | bcftools call --threads 6 -Ov -mv | bcftools filter -s LowQual -e '%QUAL<20 || DP<30' > bcftools_30X_aligned_markdup_SQ6981.mpileup.vcf
+bcftools mpileup --threads 6 -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | bcftools call --threads 6 -Ov -mv | bcftools filter -i 'QUAL>20 && DP>30' > bcftools_30X_aligned_markdup_SQ6981.mpileup.vcf
 
 #VarScan - http://varscan.sourceforge.net/using-varscan.html
 #v2.4.3 seems to not like samtools mpileup, using bcftools
