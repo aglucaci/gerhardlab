@@ -65,7 +65,7 @@ fastqc SQ6981_S1_L00X_MASTER_R2_001.fastq.gz
 ##########################################################
 # Read Trimming - Trimmomatic or other?
 ##########################################################
-#Quality is very good in this dataset.
+java -jar /home/alexander/Downloads/Trimmomatic-0.39/trimmomatic-0.39.jar PE -phred33 SQ6981_S1_L00X_MASTER_R1_001.fastq.gz SQ6981_S1_L00X_MASTER_R2_001.fastq.gz SQ6981_S1_L00X_MASTER_R1_001_paired.fq.gz SQ6981_S1_L00X_MASTER_R1_001_unpaired.fq.gz SQ6981_S1_L00X_MASTER_R2_001_paired.fq.gz SQ6981_S1_L00X_MASTER_R2_001_unpaired.fq.gz ILLUMINACLIP:/home/alexander/Downloads/Trimmomatic-0.39/adapters/TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
 
 ##########################################################
 # Mapping
