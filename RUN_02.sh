@@ -181,6 +181,7 @@ freebayes -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/
 freebayes -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa /media/alexander/Elements/RQ534361-KA/Analysis/aligned_markdup_SQ6981.bam > Freebayes_aligned_markdup_SQ6981.bam.vcf
 #freebayes -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa -@ /media/alexander/Elements/RQ534361-KA/Analysis/samtools_aligned_markdup_SQ6981.mpileup > Freebayes_samtools_aligned_markdup_SQ6981.mpileup.vcf
 # add coverage depth with -C 30; freebayes -f ref.fa -C 5 aln.bam >var.vcf
+freebayes -C 30 -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa /media/alexander/Elements/RQ534361-KA/Analysis/aligned_markdup_SQ6981.bam > Freebayes_30X_aligned_markdup_SQ6981.bam.vcf
 
 #bcftools call - https://samtools.github.io/bcftools/bcftools.html
 #Version: 1.7 (using htslib 1.7-2)
