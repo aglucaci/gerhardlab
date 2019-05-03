@@ -245,6 +245,7 @@ bcftools stats SQ6981_S1.vcf | head -n 30
 ##########################################################
 #Version: 1.7 (using htslib 1.7-2)
 #bcftools filter -s LowQual -e '%QUAL<20 || DP>100' > var.flt.vcf
+bcftools filter -i 'QUAL>20 && DP>30' GATK_output.vcf.gz > var.flt.vcf.gz
 
 ##########################################################
 # VCF Intersects
