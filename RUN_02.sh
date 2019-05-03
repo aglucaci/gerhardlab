@@ -190,6 +190,8 @@ freebayes -C 30 -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens
 #bcftools call -v -m samtools_aligned_markdup_SQ6981.mpileup > samtools_aligned_markdup_SQ6981.mpileup_variants.vcf
 #bcftools call -v -m bcftools_aligned_markdup_SQ6981.mpileup > bcftools_aligned_markdup_SQ6981.mpileup_variants.vcf
 bcftools mpileup --threads 6 -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | bcftools call --threads 6 -Ov -mv > bcftools_aligned_markdup_SQ6981.mpileup.vcf
+#30X
+bcftools mpileup --threads 6 -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | bcftools call --threads 6 -Ov -mv | bcftools filter -s LowQual -e '%QUAL<20 || DP<30' > bcftools_30X_aligned_markdup_SQ6981.mpileup.vcf
 
 #VarScan - http://varscan.sourceforge.net/using-varscan.html
 #v2.4.3 seems to not like samtools mpileup, using bcftools
@@ -200,12 +202,15 @@ bcftools mpileup --threads 6 -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_
 #bcftools mpileup --threads 6 -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2indel > varscan_indel_bcftools_aligned_markdup_SQ6981.mpileup.vcf 
 #bcftools mpileup -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2snp > varscan_snp_bcftools_aligned_markdup_SQ6981.mpileup.vcf
 samtools mpileup -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2snp --output-vcf 1 > varscan_snp_samtools_aligned_markdup_SQ6981.mpileup.vcf
+#30X
+samtools mpileup -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2snp --min-coverage 30 --output-vcf 1 > varscan_snp_30X_samtools_aligned_markdup_SQ6981.mpileup.vcf
 
 #varscan mpileup2indel samtools_aligned_markdup_SQ6981.mpileup --min-coverage 30
 #varscan mpileup2indel bcftools_aligned_markdup_SQ6981.mpileup --min-coverage 30
 #bcftools mpileup -uf /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2indel > varscan_indel_bcftools_aligned_markdup_SQ6981.mpileup.vcf
 samtools mpileup -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2indel --output-vcf 1 > varscan_indel_samtools_aligned_markdup_SQ6981.mpileup.vcf
-
+#30X
+samtools mpileup -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2indel --min-coverage 30 --output-vcf 1 > varscan_indel_30X_samtools_aligned_markdup_SQ6981.mpileup.vcf
 #Naive Variant Caller - ignore
 
 ## --- GATK --- ##
