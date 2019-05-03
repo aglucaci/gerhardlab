@@ -254,6 +254,8 @@ bcftools filter -i 'QUAL>20 && DP>30' GATK_output.vcf.gz > var.flt.vcf.gz
 bgzip the vcfs
 bcftools index the vcfs
 bcftools isec -p dir -n=3 bcftools_aligned_markdup_SQ6981.mpileup.vcf.gz Freebayes_aligned_markdup_SQ6981.bam.vcf.gz GATK_output.vcf.gz
+bcftools isec -p 30X -n=4 bcftools_aligned_markdup_SQ6981.mpileup.vcf.gz Freebayes_30X_aligned_markdup_SQ6981.bam.vcf.gz GATK_output.vcf.gz varscan_snpandindels_30X_samtools_aligned_markdup_SQ6981.mpileup.vcf.gz
+#-n=4 means that the variants reported are in all 4 files. This is what I will pass to VEP.
 
 
 ##########################################################
