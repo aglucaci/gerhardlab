@@ -135,7 +135,7 @@ samtools markdup aligned_positionsort_SQ6981.bam aligned_markdup_SQ6981.bam
 #Picard - https://github.com/broadinstitute/picard/releases/tag/2.20.0
 #Version 2.20.0
 #https://broadinstitute.github.io/picard/command-line-overview.html#MarkDuplicates
-java -jar /home/alexander/Downloads/picard.jar MarkDuplicates I=aligned_SQ6981.bam O=aligned_SQ6981_marked_duplicates.bam M=marked_dup_metrics.txt
+java -jar /home/alexander/Downloads/picard.jar MarkDuplicates I=aligned_SQ6981.bam O=aligned_SQ6981_picard_markedduplicates.bam M=marked_dup_metrics.txt
       
 java -jar picard.jar
 
