@@ -179,13 +179,13 @@ bcftools mpileup --threads 6 -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_
 #varscan mpileup2snp samtools_aligned_markdup_SQ6981.mpileup --min-coverage 30 --output-vcf 1 > varscan_samtools_aligned_markdup_SQ6981.mpileup.vcf
 #varscan mpileup2snp bcftools_aligned_markdup_SQ6981.mpileup --min-coverage 30 --output-vcf 1 > varscan_bcftools_aligned_markdup_SQ6981.mpileup.vcf
 #bcftools mpileup --threads 6 -Ou -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2indel > varscan_indel_bcftools_aligned_markdup_SQ6981.mpileup.vcf 
-bcftools mpileup -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2snp > varscan_snp_bcftools_aligned_markdup_SQ6981.mpileup.vcf
-samtools mpileup -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2snp > varscan_snp_bcftools_aligned_markdup_SQ6981.mpileup.vcf
+#bcftools mpileup -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2snp > varscan_snp_bcftools_aligned_markdup_SQ6981.mpileup.vcf
+samtools mpileup -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2snp > varscan_snp_samtools_aligned_markdup_SQ6981.mpileup.vcf
 
 #varscan mpileup2indel samtools_aligned_markdup_SQ6981.mpileup --min-coverage 30
 #varscan mpileup2indel bcftools_aligned_markdup_SQ6981.mpileup --min-coverage 30
-bcftools mpileup -uf /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2indel > varscan_indel_bcftools_aligned_markdup_SQ6981.mpileup.vcf
-samtools mpileup -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2indel > varscan_indel_bcftools_aligned_markdup_SQ6981.mpileup.vcf
+#bcftools mpileup -uf /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2indel > varscan_indel_bcftools_aligned_markdup_SQ6981.mpileup.vcf
+samtools mpileup -f /media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa aligned_markdup_SQ6981.bam | varscan mpileup2indel > varscan_indel_samtools_aligned_markdup_SQ6981.mpileup.vcf
 
 #VarScan - Combine the varscan vcf's
 
