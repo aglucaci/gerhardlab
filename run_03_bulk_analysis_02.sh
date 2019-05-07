@@ -4,8 +4,9 @@
 PICARD="/home/alexander/Downloads/picard.jar"
 GATK="/home/alexander/Downloads/gatk-4.1.1.0/gatk-package-4.1.1.0-local.jar"
 REFERENCE="/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa"
-GNOMAD_VCF=""
+GNOMAD_VCF="/media/alexander/Elements/gnomad.exomes.r2.1.1.sites.vcf.bgz"
 
+WD = ""
 #######################################################################
 # Initialize this script.
 #######################################################################
@@ -14,6 +15,7 @@ clear
 echo .
 echo "## Initializing script - Whole Exome to Variant Calling (c) 2019"
 echo "## by Alexander G. Lucaci"
+echo "## Dataset: RQ534361-KA"
 echo ""
 
 #######################################################################
@@ -35,26 +37,25 @@ cd ../Analysis/Run_03
 ##########################################################
 # FASTQ to uBAM
 ##########################################################
-echo "Generating unmapped BAMs from FASTQ"
-java -jar $PICARD FastqToSam F1=$READ1 O=SQ6981_S1_L00X_MASTER_R1_001.unmapped.bam SM=SQ6981_R1
-java -jar $PICARD FastqToSam F1=$READ2 O=SQ6981_S1_L00X_MASTER_R2_001.unmapped.bam SM=SQ6981_R2
+#echo "Generating unmapped BAMs from FASTQ"
+#java -jar $PICARD FastqToSam F1=$READ1 O=SQ6981_S1_L00X_MASTER_R1_001.unmapped.bam SM=SQ6981_R1
+#java -jar $PICARD FastqToSam F1=$READ2 O=SQ6981_S1_L00X_MASTER_R2_001.unmapped.bam SM=SQ6981_R2
 
 ##########################################################
 # Run FASTQC
 ##########################################################
 #Version 0.11.5
 echo "Generating FASTQC files"
-fastqc SQ6981_S1_L00X_MASTER_R1_001.fastq.gz
-fastqc SQ6981_S1_L00X_MASTER_R2_001.fastq.gz
+fastqc $READ1
+fastqc $READ2
 
 ##########################################################
 # Mapping 
 ##########################################################
-echo "Indexing reference genome"
-bwa index $REFERENCE
+#echo "Indexing reference genome"
+#bwa index $REFERENCE
 
 echo "Mapping reads to reference"
-#bwa mem -M -t 7 -R "@RG\tID:SQ6981\tSM:SQ6981\tPL:Illumina" $REFERENCE $READ1 $READ2 | samtools view -bS - | samtools sort -@ 2 -m 2G -o aligned_SQ6981.bam
 bwa mem -M -t 7 -R "@RG\tID:SQ6981\tSM:SQ6981\tPL:Illumina" $REFERENCE $READ1 $READ2 > aligned_SQ6981.sam 
 
 ##########################################################
