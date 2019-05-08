@@ -1,15 +1,14 @@
 ## REPOSITORY (RQ534361)
 ## PROJECT NAME - KA
-## INVITAE PAIRED END RUNS 
-## FASTQ FILES
-## SOFTWARE USED:
+
+## --- SOFTWARE USED --- ##
 #BWA - Version: 0.7.17-r1188
 #SAMTOOLS - Version: 1.7 (using htslib 1.7-2)
-#PICARD
-#GATK
+#PICARD - Version: 2.20.0
+#GATK - Version: 4.1.1.0
 #BCFTOOLS - Version:   v2.26.0
-#BEDTOOLS
-#FASTQC - Version 0.11.5
+#BEDTOOLS - Version:   v2.26.0
+#FASTQC - Version: 0.11.5
 
 #Computer: this script is configured to run on the ubuntu-deploy server.
 #java -version
@@ -17,19 +16,25 @@
 #OpenJDK Runtime Environment (build 1.8.0_191-8u191-b12-2ubuntu0.18.04.1-b12)
 #OpenJDK 64-Bit Server VM (build 25.191-b12, mixed mode)
 
-#LINK TO REFERENCE
+#LINK TO REFERENCE - Illumina iGenomes
+#https://support.illumina.com/sequencing/sequencing_software/igenome.html
+#ftp://igenome:G3nom3s4u@ussd-ftp.illumina.com/Homo_sapiens/UCSC/hg19/Homo_sapiens_UCSC_hg19.tar.gz
 
-#LINK TO GNOMAD VCF
+#LINK TO GNOMAD VCF - https://gnomad.broadinstitute.org/downloads
+#https://storage.googleapis.com/gnomad-public/release/2.1.1/vcf/exomes/gnomad.exomes.r2.1.1.sites.vcf.bgz
 
 PICARD="/home/alexander/Downloads/picard.jar"
 GATK="/home/alexander/Downloads/gatk-4.1.1.0/gatk-package-4.1.1.0-local.jar"
 REFERENCE="/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa"
+REFERENCE_INDEX="/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa.fai"
 GNOMAD_VCF="/media/alexander/Elements/gnomad.exomes.r2.1.1.sites.vcf.bgz"
+GNOMAD_VCF_INDEX="/media/alexander/Elements/gnomad.exomes.r2.1.1.sites.vcf.bgz.tbi"
 
 READ1="SQ6981_S1_L00X_MASTER_R1_001.fastq.gz"
 READ2="SQ6981_S1_L00X_MASTER_R2_001.fastq.gz"
 
-WD = ""
+WD = "/"
+
 #######################################################################
 # Initialize this script.
 #######################################################################
@@ -51,10 +56,12 @@ echo "Combining FASTQ files.."
 if [[ ! -e "../Analysis/Run_03/"$READ1 ]]
 then
     cat SQ6981_S1_L001_R1_001.fastq.gz SQ6981_S1_L002_R1_001.fastq.gz SQ6981_S1_L003_R1_001.fastq.gz SQ6981_S1_L004_R1_001.fastq.gz > ../Analysis/Run_03/SQ6981_S1_L00X_MASTER_R1_001.fastq.gz
-    cat SQ6981_S1_L001_R2_001.fastq.gz SQ6981_S1_L002_R2_001.fastq.gz SQ6981_S1_L003_R2_001.fastq.gz SQ6981_S1_L004_R2_001.fastq.gz > ../Analysis/Run_03/SQ6981_S1_L00X_MASTER_R2_001.fastq.gz
 fi
 
-#if [ ! -f "/etc/bebebe" ]; then echo "The file does not exist"; fi
+if [[ ! -e "../Analysis/Run_03/"$READ2 ]]
+then
+    cat SQ6981_S1_L001_R2_001.fastq.gz SQ6981_S1_L002_R2_001.fastq.gz SQ6981_S1_L003_R2_001.fastq.gz SQ6981_S1_L004_R2_001.fastq.gz > ../Analysis/Run_03/SQ6981_S1_L00X_MASTER_R2_001.fastq.gz
+fi
 
 echo "Changing directory to Data to ../Analysis/Run_03"
 cd ../Analysis/Run_03
@@ -99,10 +106,10 @@ fi
 # Analyze the Mapping
 ##########################################################
 echo "Generating alignment flagstats"
-samtools flagstat aligned_SQ6981.bam > flagstat_aligned_SQ6981.bam.txt
-
-echo "BEDTools - Generate a bedgraph of coverage"
-bedtools genomecov -ibam aligned_SQ6981.bam -bg > aligned_SQ6981.bam.bedgraph
+if [[ ! -e "flagstat_aligned_SQ6981.bam.txt" ]]
+then
+    samtools flagstat aligned_SQ6981.bam > flagstat_aligned_SQ6981.bam.txt
+fi
 
 ##########################################################
 # Prepping for analysis 
@@ -114,6 +121,12 @@ then
     java -jar $PICARD SortSam I=aligned_SQ6981.bam O=sorted_aligned_SQ6981.bam SORT_ORDER=coordinate
 fi
 
+echo "BEDTools - Generate a bedgraph of coverage"
+if [[ ! -e "aligned_SQ6981.bam.bedgraph" ]]
+then
+    bedtools genomecov -ibam sorted_aligned_SQ6981.bam -bg > aligned_SQ6981.bam.bedgraph
+fi
+
 echo "Marking PCR Duplicates"
 if [[ ! -e "marked_duplicates_sorted_aligned_SQ6981.bam" ]]
 then
@@ -121,21 +134,26 @@ then
 fi
 
 echo "Indexing the gnomAD VCF"
-java -jar $GATK IndexFeatureFile -F $GNOMAD_VCF
+if [[ ! -e $GNOMAD_VCF_INDEX ]]
+then
+    #java -jar $GATK IndexFeatureFile -F $GNOMAD_VCF
+    continue
+fi
 
 #cat genome_test.fa | perl -pe 's/chr//g' > genome_chr_replaced.fa
-REFERENCE_CHR_REPLACED = "/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome_chr_replaced.fa"
+REFERENCE_CHR_REPLACED="/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome_chr_replaced.fa"
 
 echo "Indexing reference genome with chr replaced"
 bwa index $REFERENCE_CHR_REPLACED
 
 #https://software.broadinstitute.org/gatk/best-practices/workflow?id=11165
 echo "Generated recalibration table based on gnomAD"
-java -jar $GATK BaseRecalibrator -I marked_duplicates_sorted_aligned_SQ6981.bam -R $REFERENCE --known-sites $GNOMAD_VCF -O recal_data.table
+java -jar $GATK BaseRecalibrator -I marked_duplicates_sorted_aligned_SQ6981.bam -R $REFERENCE_CHR_REPLACED --known-sites $GNOMAD_VCF -O recal_data.table
 
 echo "Applying base recalibration"
 java -jar $GATK ApplyBQSR -R $REFERENCE -I marked_duplicates_sorted_aligned_SQ6981.bam --bqsr-recal-file recal_data.table -O BQSR_marked_duplicates_sorted_aligned_SQ6981.bam
 
+exit 1
 ##########################################################
 # Variant Calling
 ##########################################################
@@ -146,7 +164,7 @@ freebayes -C 30 -f $REFERENCE $QUERY > Freebayes_30X_BQSR_sorted_marked_duplicat
 
 echo "Variant calling with bcftools.."
 #can switch to samtools mpileup, any difference?
-bcftools mpileup --threads 6 -Ou -f $REFERENCE $QUERY | bcftools call --threads 6 -Ov -mv | bcftools filter -i 'QUAL>20 && DP>30' > bcftools_30X_aligned_markdup_SQ6981.mpileup.vcf
+bcftools mpileup --threads 6 -Ou -f $REFERENCE $QUERY | bcftools call --threads 7 -Ov -mv | bcftools filter -i 'QUAL>20 && DP>30' > bcftools_30X_aligned_markdup_SQ6981.mpileup.vcf
 
 echo "Variant calling with VarScan - SNPs.."
 samtools mpileup -f $REFERENCE $QUERY | varscan mpileup2snp --min-coverage 30 --output-vcf 1 > varscan_snp_30X_samtools_BQSR_sorted_marked_duplicates_aligned_SQ6981.bam.mpileup.vcf
@@ -154,23 +172,23 @@ samtools mpileup -f $REFERENCE $QUERY | varscan mpileup2snp --min-coverage 30 --
 echo "Variant calling with VarScan - InDels.."
 samtools mpileup -f $REFERENCE $QUERY | varscan mpileup2indel --min-coverage 30 --output-vcf 1 > varscan_indel_30X_samtools_BQSR_sorted_marked_duplicates_aligned_SQ6981.bam.mpileup.vcf
 
-echo "Concatenating VarScan output into one VCF (SNPs + Indels"
-#bcftools concat -o 
-
 echo "Variant calling with GATK - HaplotypeCaller"
 java -jar $GATK --java-options "-Xmx4g" HaplotypeCaller -R $REFERENCE-I $QUERY -O GATK_BQSR_sorted_marked_duplicates_aligned_SQ6981.bam.vcf.gz -bamout GATK_bamout.bam
 
 ##########################################################
 # Consolidate VCFs
 ##########################################################
-
+echo "Concatenating VarScan output into one VCF (SNPs + Indels"
+#bcftools concat -o 
 
 
 
 ##########################################################
 # Intersect VCFs
 ##########################################################
+#Where do they all agree?
 
+#What is unique to each method?
 
 
 ##########################################################
