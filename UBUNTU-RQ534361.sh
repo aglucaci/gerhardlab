@@ -123,6 +123,12 @@ fi
 echo "Indexing the gnomAD VCF"
 java -jar $GATK IndexFeatureFile -F $GNOMAD_VCF
 
+#cat genome_test.fa | perl -pe 's/chr//g' > genome_chr_replaced.fa
+REFERENCE_CHR_REPLACED = "/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome_chr_replaced.fa"
+
+echo "Indexing reference genome with chr replaced"
+bwa index $REFERENCE_CHR_REPLACED
+
 #https://software.broadinstitute.org/gatk/best-practices/workflow?id=11165
 echo "Generated recalibration table based on gnomAD"
 java -jar $GATK BaseRecalibrator -I marked_duplicates_sorted_aligned_SQ6981.bam -R $REFERENCE --known-sites $GNOMAD_VCF -O recal_data.table
