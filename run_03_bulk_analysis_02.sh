@@ -78,12 +78,21 @@ then
 fi
 
 echo "Sorting BAM"
-java -jar $PICARD SortSam I=aligned_SQ6981.bam O=sorted_aligned_SQ6981.bam SORT_ORDER=coordinate
+if [[ ! -e "sorted_aligned_SQ6981.bam" ]]
+then
+    java -jar $PICARD SortSam I=aligned_SQ6981.bam O=sorted_aligned_SQ6981.bam SORT_ORDER=coordinate
+fi
 
 echo "Marking PCR Duplicates"
-#https://software.broadinstitute.org/gatk/best-practices/workflow?id=11165
-java -jar $PICARD MarkDuplicates I=sorted_aligned_SQ6981.bam O=marked_duplicates_sorted_aligned_SQ6981.bam M=marked_dup_metrics.txt
+if [[ ! -e "marked_duplicates_sorted_aligned_SQ6981.bam" ]]
+then
+    java -jar $PICARD MarkDuplicates I=sorted_aligned_SQ6981.bam O=marked_duplicates_sorted_aligned_SQ6981.bam M=marked_dup_metrics.txt
+fi
 
+echo "Indexing the gnomAD VCF"
+java -jar $GATK IndexFeatureFile -F $GNOMAD_VCF
+
+#https://software.broadinstitute.org/gatk/best-practices/workflow?id=11165
 echo "Generated recalibration table based on gnomAD"
 java -jar $GATK BaseRecalibrator -I marked_duplicates_sorted_aligned_SQ6981.bam -R $REFERENCE --known-sites $GNOMAD_VCF -O recal_data.table
 
