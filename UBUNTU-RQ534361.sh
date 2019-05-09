@@ -25,15 +25,21 @@
 
 PICARD="/home/alexander/Downloads/picard.jar"
 GATK="/home/alexander/Downloads/gatk-4.1.1.0/gatk-package-4.1.1.0-local.jar"
+#cat genome_test.fa | perl -pe 's/chr//g' > genome_chr_replaced.fa
+#Had to replace chr1 to 1 so that the gnomad VCF agrees with the reference, gnomAD uses hg19.
 REFERENCE="/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa"
-REFERENCE_INDEX="/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa.fai"
+REFERENCE_INDEX="/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa.bwt"
 GNOMAD_VCF="/media/alexander/Elements/gnomad.exomes.r2.1.1.sites.vcf.bgz"
 GNOMAD_VCF_INDEX="/media/alexander/Elements/gnomad.exomes.r2.1.1.sites.vcf.bgz.tbi"
 
 READ1="SQ6981_S1_L00X_MASTER_R1_001.fastq.gz"
 READ2="SQ6981_S1_L00X_MASTER_R2_001.fastq.gz"
 
-WD = "/"
+echo "Set WD:"
+WD = "/media/alexander/Elements/RQ534361-KA/Scripts"
+cd WD
+
+echo $WD
 
 #######################################################################
 # Initialize this script.
@@ -49,7 +55,7 @@ echo ""
 #######################################################################
 # Data preprocessing
 #######################################################################
-echo "Changing directory to Data"
+echo "Changing directory to ../Data"
 cd ../Data
 
 echo "Combining FASTQ files.."
@@ -86,14 +92,19 @@ cd ../Analysis/Run_03
 ##########################################################
 # Mapping 
 ##########################################################
-#echo "Indexing reference genome"
-#bwa index $REFERENCE
+echo "Indexing reference genome"
+if [[ ! -e $REFERENCE_INDEX ]]
+then
+    bwa index $REFERENCE
+    #continue
+fi
 
 echo "Mapping reads to reference"
 if [[ ! -e "aligned_SQ6981.sam" ]]
 then
-    bwa mem -M -t 7 -R "@RG\tID:SQ6981\tSM:SQ6981\tPL:Illumina" $REFERENCE $READ1 $READ2 > aligned_SQ6981.sam 
-    #Don't need to store the SAM file: bwa mem -M -t 7 -R "@RG\tID:SQ6981\tSM:SQ6981\tPL:Illumina" $REFERENCE $READ1 $READ2 | samtools view -bS > aligned_SQ6981.bam
+    #bwa mem -M -t 7 -R "@RG\tID:SQ6981\tSM:SQ6981\tPL:Illumina" $REFERENCE $READ1 $READ2 > aligned_SQ6981.sam 
+    #Don't need to store the SAM file: 
+    bwa mem -M -t 7 -R "@RG\tID:SQ6981\tSM:SQ6981\tPL:Illumina" $REFERENCE $READ1 $READ2 | samtools view -bS > aligned_SQ6981.bam
 fi
 
 echo "Converting SAM to BAM"
@@ -116,6 +127,7 @@ fi
 ##########################################################
 
 echo "Sorting BAM"
+#could also do samtools sort
 if [[ ! -e "sorted_aligned_SQ6981.bam" ]]
 then
     java -jar $PICARD SortSam I=aligned_SQ6981.bam O=sorted_aligned_SQ6981.bam SORT_ORDER=coordinate
@@ -133,22 +145,29 @@ then
     java -jar $PICARD MarkDuplicates I=sorted_aligned_SQ6981.bam O=marked_duplicates_sorted_aligned_SQ6981.bam M=marked_dup_metrics.txt
 fi
 
+#echo "Cleaning up Reference for GATK"
+#cat genome_test.fa | perl -pe 's/chr//g' > genome_chr_replaced.fa
+#Had to replace chr1 to 1 so that the VCF agrees with the reference. gnomAD uses hg19.
+
+#REFERENCE_CHR_REPLACED="/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome_chr_replaced.fa"
+
+#echo "samtools faidx on the Reference chr replaced"
+#samtools faidx $REFERENCE_CHR_REPLACED
+
+#echo "Creating new dict"
+#java -jar $PICARD CreateSequenceDictionary R=$REFERENCE_CHR_REPLACED O="/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome_chr_replaced.dict"
+
 echo "Indexing the gnomAD VCF"
 if [[ ! -e $GNOMAD_VCF_INDEX ]]
 then
-    #java -jar $GATK IndexFeatureFile -F $GNOMAD_VCF
+    java -jar $GATK IndexFeatureFile -F $GNOMAD_VCF
     continue
 fi
 
-#cat genome_test.fa | perl -pe 's/chr//g' > genome_chr_replaced.fa
-REFERENCE_CHR_REPLACED="/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome_chr_replaced.fa"
-
-echo "Indexing reference genome with chr replaced"
-bwa index $REFERENCE_CHR_REPLACED
-
 #https://software.broadinstitute.org/gatk/best-practices/workflow?id=11165
+#https://www.biostars.org/p/312190/
 echo "Generated recalibration table based on gnomAD"
-java -jar $GATK BaseRecalibrator -I marked_duplicates_sorted_aligned_SQ6981.bam -R $REFERENCE_CHR_REPLACED --known-sites $GNOMAD_VCF -O recal_data.table
+java -jar $GATK BaseRecalibrator -I marked_duplicates_sorted_aligned_SQ6981.bam -R $REFERENCE --known-sites $GNOMAD_VCF -O recal_data.table
 
 echo "Applying base recalibration"
 java -jar $GATK ApplyBQSR -R $REFERENCE -I marked_duplicates_sorted_aligned_SQ6981.bam --bqsr-recal-file recal_data.table -O BQSR_marked_duplicates_sorted_aligned_SQ6981.bam
