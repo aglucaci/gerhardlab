@@ -82,13 +82,13 @@ echo "() Changing directory to ../Data"
 cd ../Data
 
 echo "() Combining RQ553841 FASTQ files.."
-echo "() Read 1"
+echo "() Combining forward reads"
 if [[ ! -e "../Analysis/"$READ1 ]]
 then
     cat SQ7711_S1_L001_R1_001.fastq.gz SQ7711_S1_L002_R1_001.fastq.gz > ../Analysis/$READ1
 fi
 
-echo "() Read 2"
+echo "() Combining reverse reads"
 if [[ ! -e "../Analysis/"$READ2 ]]
 then
     cat SQ7711_S1_L001_R2_001.fastq.gz SQ7711_S1_L002_R2_001.fastq.gz > ../Analysis/$READ2
@@ -145,14 +145,12 @@ then
     java -jar $PICARD MarkDuplicates I=sorted_aligned_SQ7711.bam O=marked_duplicates_sorted_aligned_SQ7711.bam M=marked_dup_metrics.txt
 fi
 
-
 #Ammend gnomAD VCF
 echo "Ammending gnomAD VCF - for agreement"
 if [[ ! -e $GNOMAD_AMMENDED_VCF ]]
 then
     python ../Scripts/ammend_gnomad.py > $GNOMAD_AMMENDED_VCF
 fi
-
 
 #Index the ammended gnomAD VCF
 echo "Indexing the Ammended gnomAD VCF"
