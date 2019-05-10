@@ -30,6 +30,11 @@ REFERENCE_BWA="/run/media/alexander/4TB-VD1/Projects/REFERENCE/Homo_sapiens_UCSC
 GNOMAD_VCF="/run/media/alexander/4TB-VD1/Projects/GNOMAD/gnomad.exomes.r2.1.1.sites.vcf.bgz"
 GNOMAD_INDEX="/run/media/alexander/4TB-VD1/Projects/GNOMAD/gnomad.exomes.r2.1.1.sites.vcf.bgz.tbi"
 
+##Ammended gnomAD Annotation ##
+#Change 1 to chr1.
+GNOMAD_AMMENDED_VCF="/run/media/alexander/4TB-VD1/Projects/GNOMAD/AMMENDED_gnomad.exomes.r2.1.1.sites.vcf.bgz"
+GNOMAD_AMMENDED_INDEX="/run/media/alexander/4TB-VD1/Projects/GNOMAD/AMMENDED_gnomad.exomes.r2.1.1.sites.vcf.bgz.tbi"
+
 #Set Working Directory
 WD="/run/media/alexander/4TB-VD1/Projects/RQ553841_Ca2+/Scripts"
 cd $WD
@@ -128,6 +133,51 @@ then
     #samtools sort aligned_SQ7711.bam > sorted_aligned_SQ7711.bam
 fi
 
+#echo "BEDTools - Generate a bedgraph of coverage"
+#if [[ ! -e "aligned_SQ6981.bam.bedgraph" ]]
+#then
+#    bedtools genomecov -ibam sorted_aligned_SQ6981.bam -bg > aligned_SQ6981.bam.bedgraph
+#fi
+
+echo "Marking PCR Duplicates"
+if [[ ! -e "marked_duplicates_sorted_aligned_SQ7711.bam" ]]
+then
+    java -jar $PICARD MarkDuplicates I=sorted_aligned_SQ7711.bam O=marked_duplicates_sorted_aligned_SQ7711.bam M=marked_dup_metrics.txt
+fi
+
+
+#Ammend gnomAD VCF
+echo "Ammending gnomAD VCF - for agreement"
+if [[ ! -e $GNOMAD_AMMENDED_VCF ]]
+then
+    python ../Scripts/ammend_gnomad.py > $GNOMAD_AMMENDED_VCF
+fi
+
+
+#Index the ammended gnomAD VCF
+echo "Indexing the Ammended gnomAD VCF"
+if [[ ! -e $GNOMAD_AMMENDED_INDEX ]]
+then
+    java -jar $GATK IndexFeatureFile -F $GNOMAD_VCF
+    continue
+fi
+
+echo "Generating recalibration table based on gnomAD"
+if [[ ! -e "recal_data.table" ]]
+then
+    java -jar $GATK BaseRecalibrator -I marked_duplicates_sorted_aligned_SQ7711.bam -R $REFERENCE --known-sites $GNOMAD_AMMENDED_VCF -O recal_data.table
+fi
+
+echo "Applying base recalibration"
+if [[ ! -e "BQSR_marked_duplicates_sorted_aligned_SQ6981.bam" ]]
+then
+    java -jar $GATK ApplyBQSR -R $REFERENCE -I marked_duplicates_sorted_aligned_SQ7711.bam --bqsr-recal-file recal_data.table -O BQSR_marked_duplicates_sorted_aligned_SQ7711.bam
+fi
+
+##########################################################
+# Variant Calling
+##########################################################
+QUERY="BQSR_marked_duplicates_sorted_aligned_SQ7711.bam"
 
 #######################################################################
 # End of file
