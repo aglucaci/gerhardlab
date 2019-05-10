@@ -28,7 +28,9 @@ GATK="/home/alexander/Downloads/gatk-4.1.1.0/gatk-package-4.1.1.0-local.jar"
 #cat genome_test.fa | perl -pe 's/chr//g' > genome_chr_replaced.fa
 #Had to replace chr1 to 1 so that the gnomad VCF agrees with the reference, gnomAD uses hg19.
 REFERENCE="/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa"
-REFERENCE_INDEX="/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa.bwt"
+REFERENCE_BWA_INDEX="/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa.bwt"
+REFERENCE_SAMTOOLS_INDEX="/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa.fai"
+REFERENCE_DICT="/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.dict"
 GNOMAD_VCF="/media/alexander/Elements/gnomad.exomes.r2.1.1.sites.vcf.bgz"
 GNOMAD_VCF_INDEX="/media/alexander/Elements/gnomad.exomes.r2.1.1.sites.vcf.bgz.tbi"
 
@@ -93,7 +95,7 @@ cd ../Analysis/Run_03
 # Mapping 
 ##########################################################
 echo "Indexing reference genome"
-if [[ ! -e $REFERENCE_INDEX ]]
+if [[ ! -e $REFERENCE_BWA_INDEX ]]
 then
     bwa index $REFERENCE
     #continue
@@ -102,9 +104,10 @@ fi
 echo "Mapping reads to reference"
 if [[ ! -e "aligned_SQ6981.sam" ]]
 then
-    #bwa mem -M -t 7 -R "@RG\tID:SQ6981\tSM:SQ6981\tPL:Illumina" $REFERENCE $READ1 $READ2 > aligned_SQ6981.sam 
+    bwa mem -M -t 7 -R "@RG\tID:SQ6981\tSM:SQ6981\tPL:Illumina" $REFERENCE $READ1 $READ2 > aligned_SQ6981.sam 
     #Don't need to store the SAM file: 
-    bwa mem -M -t 7 -R "@RG\tID:SQ6981\tSM:SQ6981\tPL:Illumina" $REFERENCE $READ1 $READ2 | samtools view -bS > aligned_SQ6981.bam
+    #on Ubuntu this gave a memory error.
+    #bwa mem -M -t 7 -R "@RG\tID:SQ6981\tSM:SQ6981\tPL:Illumina" $REFERENCE $READ1 $READ2 | samtools view -bS > aligned_SQ6981.bam
 fi
 
 echo "Converting SAM to BAM"
@@ -164,15 +167,34 @@ then
     continue
 fi
 
+echo "Samtools indexing the Reference fasta"
+if [[ ! -e $REFERENCE_SAMTOOLS_INDEX ]]
+then
+    samtools faidx $REFERENCE
+fi
+
+echo "Creating new dict"
+if [[ ! -e $REFERENCE_DICT ]]
+then
+    java -jar $PICARD CreateSequenceDictionary R=$REFERENCE O=$REFERENCE_DICT
+    #java -XX:ParallelGCThreads=<num of  threads> -jar <picard-package-name>.jar
+fi
+
+echo "Generated recalibration table based on gnomAD"
 #https://software.broadinstitute.org/gatk/best-practices/workflow?id=11165
 #https://www.biostars.org/p/312190/
-echo "Generated recalibration table based on gnomAD"
-java -jar $GATK BaseRecalibrator -I marked_duplicates_sorted_aligned_SQ6981.bam -R $REFERENCE --known-sites $GNOMAD_VCF -O recal_data.table
-
-echo "Applying base recalibration"
-java -jar $GATK ApplyBQSR -R $REFERENCE -I marked_duplicates_sorted_aligned_SQ6981.bam --bqsr-recal-file recal_data.table -O BQSR_marked_duplicates_sorted_aligned_SQ6981.bam
+if [[ ! -e "recal_data.table" ]]
+then
+    java -jar $GATK BaseRecalibrator -I marked_duplicates_sorted_aligned_SQ6981.bam -R $REFERENCE --known-sites $GNOMAD_VCF -O recal_data.table
+fi
 
 exit 1
+echo "Applying base recalibration"
+if [[ ! -e "BQSR_marked_duplicates_sorted_aligned_SQ6981.bam" ]]
+then
+    java -jar $GATK ApplyBQSR -R $REFERENCE -I marked_duplicates_sorted_aligned_SQ6981.bam --bqsr-recal-file recal_data.table -O BQSR_marked_duplicates_sorted_aligned_SQ6981.bam
+fi
+
 ##########################################################
 # Variant Calling
 ##########################################################
