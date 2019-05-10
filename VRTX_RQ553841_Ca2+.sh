@@ -18,8 +18,7 @@
 ## -- SOFTWARE -- ##
 FASTQC="/home/alexander/Downloads/FastQC/fastqc"
 PICARD="/home/alexander/Downloads/picard.jar"
-GATK=""
-
+GATK="/home/alexander/Downloads/gatk-4.1.2.0/gatk-package-4.1.2.0-local.jar"
 
 ## Reference files ##
 REFERENCE="/run/media/alexander/4TB-VD1/Projects/REFERENCE/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa"
@@ -28,8 +27,8 @@ REFERENCE_DICT="/run/media/alexander/4TB-VD1/Projects/REFERENCE/Homo_sapiens_UCS
 REFERENCE_BWA="/run/media/alexander/4TB-VD1/Projects/REFERENCE/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/BWAIndex/genome.fa"
 
 ## gnomAD Annotation ##
-GNOMAD_VCF="/run/media/alexander/4TB-VD1/Projects/GNOMAD"
-GNOMAD_INDEX="/run/media/alexander/4TB-VD1/Projects/GNOMAD"
+GNOMAD_VCF="/run/media/alexander/4TB-VD1/Projects/GNOMAD/gnomad.exomes.r2.1.1.sites.vcf.bgz"
+GNOMAD_INDEX="/run/media/alexander/4TB-VD1/Projects/GNOMAD/gnomad.exomes.r2.1.1.sites.vcf.bgz.tbi"
 
 #Set Working Directory
 WD="/run/media/alexander/4TB-VD1/Projects/RQ553841_Ca2+/Scripts"
@@ -126,7 +125,7 @@ echo "() Sorting BAM"
 if [[ ! -e "sorted_aligned_SQ7711.bam" ]]
 then
     java -jar $PICARD SortSam I=aligned_SQ7711.bam O=sorted_aligned_SQ7711.bam SORT_ORDER=coordinate
-    #samtools sort aligned_SQ7711.bam > aligned_sorted_SQ7711.bam
+    #samtools sort aligned_SQ7711.bam > sorted_aligned_SQ7711.bam
 fi
 
 
