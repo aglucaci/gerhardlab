@@ -156,7 +156,7 @@ fi
 echo "Indexing the Ammended gnomAD VCF"
 if [[ ! -e $GNOMAD_AMMENDED_INDEX ]]
 then
-    java -jar $GATK IndexFeatureFile -F $GNOMAD_VCF
+    java -jar $GATK IndexFeatureFile -F $GNOMAD_AMMENDED_INDEX
     continue
 fi
 
