@@ -40,17 +40,15 @@ GNOMAD_VCF_INDEX="/media/alexander/Elements/gnomad.exomes.r2.1.1.sites.vcf.bgz.t
 READ1="SQ6981_S1_L00X_MASTER_R1_001.fastq.gz"
 READ2="SQ6981_S1_L00X_MASTER_R2_001.fastq.gz"
 
-echo "Set WD:"
 WD="/media/alexander/Elements/RQ534361-KA/Scripts"
-cd $WD
-
-echo $WD
 
 #######################################################################
 # Initialize this script.
 #######################################################################
 clear
-
+echo "Set WD:"
+cd $WD
+echo $WD
 echo .
 echo "## Initializing script - Whole Exome to Variant Calling (c) 2019"
 echo "## by Alexander G. Lucaci"
