@@ -41,7 +41,7 @@ READ1="SQ6981_S1_L00X_MASTER_R1_001.fastq.gz"
 READ2="SQ6981_S1_L00X_MASTER_R2_001.fastq.gz"
 
 echo "Set WD:"
-WD = "/media/alexander/Elements/RQ534361-KA/Scripts"
+WD="/media/alexander/Elements/RQ534361-KA/Scripts"
 cd $WD
 
 echo $WD
@@ -190,7 +190,6 @@ then
     java -jar $GATK BaseRecalibrator -I marked_duplicates_sorted_aligned_SQ6981.bam -R $REFERENCE --known-sites $GNOMAD_VCF -O recal_data.table
 fi
 
-exit 1
 echo "() Applying base recalibration"
 if [[ ! -e "BQSR_marked_duplicates_sorted_aligned_SQ6981.bam" ]]
 then
