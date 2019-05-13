@@ -3,7 +3,11 @@
 """
 Created on Sat May  4 15:26:48 2019
 
-@author: iamtokr
+@author: alexander lucaci
+Gerhard LAB
+
+provide gnomad AF filtering for VCF's from VEP
+
 """
 
 
@@ -16,8 +20,11 @@ import os, sys
 #fname = "jVTFhw6xfxgKfarh.Consequence_ne_downstream_gene_variant_and_Consequence_ne_upstream_gene_variant_and_Consequence_ne_intron_variant_and_Consequence_ne_synonymous_variant_and_Consequence_ne_non_coding_transcript_exon_variant_and_Consequence_n.vcf"
 #fname = "MoreStringent_jVTFhw6xfxgKfarh.Consequence_ne_downstream_gene_variant_and_Consequence_ne_upstream_gene_variant_and_Consequence_ne_intron_variant_and_Consequence_ne_synonymous_variant_and_Consequence_ne_non_coding_transcript_exon_variant_and_Consequen.vcf"
 fname = "jVTFhw6xfxgKfarh.Consequence_is_missense_variant.vcf"
+#fname = "jVTFhw6xfxgKfarh.Consequence_is_missense_variant_and_clinvar_clnsig_is_5.vcf"
 with_gnomAD = 0
 threshold = 0.00002
+
+phenotype = []
 
 # =============================================================================
 # Helper functions
@@ -55,7 +62,7 @@ def read_vcf(filename):
         while True:
             line = f.readline().strip()
             if line == "": break
-            #if count == 333: break  #starts at 333
+            #if count == 500: break  #starts at 333
             
             if line[0] == "#": 
                 #header += line + "\n"
@@ -71,11 +78,38 @@ def read_vcf(filename):
                 #    print([x])
                 
                 if x != "": 
-                    print(x)
-                
-                    #print()
+                    #REGULAR VARIANTS 
+                    """print(x) #FOR VCF MODE """
+                    
+                    
+                    
+                    #print(x.split("\t")[0].replace("chr", "") + "[chr] AND", x.split("\t")[1] + ":" + x.split("\t")[1])
+                    #https://www.ncbi.nlm.nih.gov/clinvar/?term=6%5Bchr%5D+AND+9708032%3A9708032
+                    #print(x.split("\t"))
+                    
+                    #if x.split("\t")[1] == str(152282024): 
+                    #    print(x.split("\t")[7].split("|")[231]) # is clinvar
+                    
+                    
+                    
+                    #CLINVAR
+                    """
+                    if x.split("\t")[7].split("|")[231] != "":
+                        #print([x.split("\t")[7].split("|")[231]])
+                        print(x)
+                    
+                        #print()
+                    
+                        num_variants += 1
+                        
+                        #if "5" in x.split("\t")[7].split("|")[231]:
+                        phenotype.append(x.split("\t")[0] + " " + x.split("\t")[1] + " " + x.split("\t")[3] + ">" + x.split("\t")[3] + "|" + x.split("\t")[7].split("|")[231])
+                    """ 
+                        
+                        
+                        
                     num_variants += 1
-
+                    
             count += 1
             
         f.close()
@@ -86,7 +120,13 @@ def read_vcf(filename):
             
 total_vars, count = read_vcf(fname)
 
-#print("() Total number of variants returned:", total_vars)
-#print("() Processed:", count)
-#print("() with gnomAD AF:", with_gnomAD)
-#print("() Threshold:", threshold)
+print("() Total number of variants returned:", total_vars)
+print("() Processed:", count)
+print("() with gnomAD AF:", with_gnomAD)
+print("() Threshold:", threshold)
+
+for item in phenotype:
+    print(item.split(" ")[0].replace("chr", "") + "[chr]", item.split(" ")[1] + ":" + item.split(" ")[1] +"[chrpos37]", item)
+    
+    
+    
