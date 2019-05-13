@@ -29,7 +29,7 @@ GATK="/home/alexander/Downloads/gatk-4.1.1.0/gatk-package-4.1.1.0-local.jar"
 #Had to replace chr1 to 1 so that the gnomad VCF agrees with the reference, gnomAD uses hg19.
 
 REFERENCE="/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa"
-REFERENCE_BWA
+REFERENCE_BWA=""
 
 REFERENCE_BWA_INDEX="/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa.bwt"
 REFERENCE_SAMTOOLS_INDEX="/media/alexander/Elements/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa.fai"
@@ -46,7 +46,7 @@ WD="/media/alexander/Elements/RQ534361-KA/Scripts"
 # Initialize this script.
 #######################################################################
 clear
-echo "Set WD:"
+
 cd $WD
 echo $WD
 echo .
@@ -76,7 +76,6 @@ fi
 
 echo "() Changing directory to Data to ../Analysis/Run_03"
 cd ../Analysis/Run_03
-
 ##########################################################
 # FASTQ to uBAM
 ##########################################################
@@ -198,37 +197,83 @@ fi
 # Variant Calling
 ##########################################################
 QUERY="BQSR_marked_duplicates_sorted_aligned_SQ6981.bam"
+FREEBAYES_VCF="Freebayes_30X_BQSR_sorted_marked_duplicates_aligned_SQ6981.bam.vcf"
+BCFTOOLS_VCF="bcftools_30X_aligned_markdup_SQ6981.mpileup.vcf"
+VARSCAN_SNP_VCF="varscan_snp_30X_samtools_BQSR_sorted_marked_duplicates_aligned_SQ6981.bam.mpileup.vcf"
+VARSCAN_INDEL_VCF="varscan_indel_30X_samtools_BQSR_sorted_marked_duplicates_aligned_SQ6981.bam.mpileup.vcf"
+GATK_VCF="GATK_BQSR_sorted_marked_duplicates_aligned_SQ6981.bam.vcf.gz"
+
+#VARIANT CALLING DIRECTORY
+#VC_DIR="VARIANT_CALLING"
+#mkdir $VC_DIR
 
 echo "() Variant calling with FreeBayes.."
-freebayes -C 30 -f $REFERENCE $QUERY > Freebayes_30X_BQSR_sorted_marked_duplicates_aligned_SQ6981.bam.vcf
+if [[ ! -e $FREEBAYES_VCF ]]
+then
+    freebayes -C 30 -f $REFERENCE $QUERY > $FREEBAYES_VCF
+fi
 
 echo "() Variant calling with bcftools.."
 #can switch to samtools mpileup, any difference?
-bcftools mpileup --threads 6 -Ou -f $REFERENCE $QUERY | bcftools call --threads 7 -Ov -mv | bcftools filter -i 'QUAL>20 && DP>30' > bcftools_30X_aligned_markdup_SQ6981.mpileup.vcf
+if [[ ! -e $BCFTOOLS_VCF ]]
+then
+    bcftools mpileup --threads 6 -Ou -f $REFERENCE $QUERY | bcftools call --threads 7 -Ov -mv | bcftools filter -i 'QUAL>20 && DP>30' > $BCFTOOLS_VCF
+fi
 
 echo "() Variant calling with VarScan - SNPs.."
-samtools mpileup -f $REFERENCE $QUERY | varscan mpileup2snp --min-coverage 30 --output-vcf 1 > varscan_snp_30X_samtools_BQSR_sorted_marked_duplicates_aligned_SQ6981.bam.mpileup.vcf
+if [[ ! -e $VARSCAN_SNP_VCF ]]
+then
+    samtools mpileup -f $REFERENCE $QUERY | varscan mpileup2snp --min-coverage 30 --output-vcf 1 > $VARSCAN_SNP_VCF
+fi
 
 echo "() Variant calling with VarScan - InDels.."
-samtools mpileup -f $REFERENCE $QUERY | varscan mpileup2indel --min-coverage 30 --output-vcf 1 > varscan_indel_30X_samtools_BQSR_sorted_marked_duplicates_aligned_SQ6981.bam.mpileup.vcf
+if [[ ! -e $VARSCAN_INDEL_VCF ]]
+then
+    samtools mpileup -f $REFERENCE $QUERY | varscan mpileup2indel --min-coverage 30 --output-vcf 1 > $VARSCAN_INDEL_VCF
+fi
 
 echo "() Variant calling with GATK - HaplotypeCaller"
-java -jar $GATK --java-options "-Xmx4g" HaplotypeCaller -R $REFERENCE-I $QUERY -O GATK_BQSR_sorted_marked_duplicates_aligned_SQ6981.bam.vcf.gz -bamout GATK_bamout.bam
+if [[ ! -e $GATK_VCF ]]
+then
+    #java -jar $GATK --java-options "-Xmx4g" HaplotypeCaller -R $REFERENCE-I $QUERY -O $GATK_VCF -bamout GATK_bamout.bam
+    java -jar $GATK HaplotypeCaller -R $REFERENCE -I $QUERY -O $GATK_VCF -bamout GATK_bamout.bam
+fi
 
 ##########################################################
 # Consolidate VCFs
 ##########################################################
-echo "() Concatenating VarScan output into one VCF (SNPs + Indels"
-#bcftools concat -o 
+echo "() Concatenating VarScan output into one VCF (SNPs + Indels)"
+#bcftools concat -o
+VARSCAN_SNPsANDIndels_VCF="varscan_SNPsANDindels_30X_samtools_BQSR_sorted_marked_duplicates_aligned_SQ6981.bam.mpileup.vcf"
 
-
+if [[ ! -e $VARSCAN_SNPsANDIndels_VCF ]]
+then
+    #gz#ip $VARSCAN_SNP_VCF
+    #g#zip $VARSCAN_INDEL_VCF
+    #bcftools index $VARSCAN_SNP_VCF".gz"
+    #bcftools index $VARSCAN_INDEL_VCF".gz"
+    bcftools concat -o $VARSCAN_SNPsANDIndels_VCF $VARSCAN_SNP_VCF $VARSCAN_INDEL_VCF
+fi
 
 ##########################################################
 # Intersect VCFs
 ##########################################################
 #Where do they all agree?
-
 #What is unique to each method?
+
+#gzip $FREEBAYES_VCF
+#gzip $BCFTOOLS_VCF
+#gzip $VARSCAN_SNPsANDIndels_VCF
+#gzip $GATK_VCF
+
+#mv $FREEBAYES_VCF Freebayes_30X_BQSR_sorted_marked_duplicates_aligned_SQ6981.bam.vcf.bgz
+
+
+
+##########################################################
+# VCF Statistics
+##########################################################
+#bcftools stats SQ6981_S1.vcf | head -n 30
 
 
 ##########################################################
