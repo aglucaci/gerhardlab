@@ -258,6 +258,8 @@ fi
 ##########################################################
 # Intersect VCFs
 ##########################################################
+echo "() Intersecting the VCFs"
+
 #Where do they all agree?
 #What is unique to each method?
 
@@ -269,17 +271,21 @@ fi
 #mv $FREEBAYES_VCF Freebayes_30X_BQSR_sorted_marked_duplicates_aligned_SQ6981.bam.vcf.bgz
 
 
-
 ##########################################################
 # VCF Statistics
 ##########################################################
 #bcftools stats SQ6981_S1.vcf | head -n 30
 
+bcftools stats $FREEBAYES_VCF | head -n 40
+bcftools stats $BCFTOOLS_VCF | head -n 40
+bcftools stats $VARSCAN_SNPsANDIndels_VCF | head -n 40
+bcftools stats $GATK_VCF | head -n 40
+
 
 ##########################################################
 # Annotate VCFs - VEP
 ##########################################################
-
+#vep
 
 ##########################################################
 # Filter VCF
