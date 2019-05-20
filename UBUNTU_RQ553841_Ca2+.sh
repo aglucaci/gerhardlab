@@ -154,8 +154,30 @@ fi
 ##########################################################
 # VCF Statistics
 ##########################################################
-bcftools stats $GATK_VCF > GATK_VCF.stats
+echo "() Generating VCF Statistics"
+if [[ ! -e "GATK_VCF.stats" ]]
+then
+    bcftools stats $GATK_VCF > GATK_VCF.stats
+fi
 
+##########################################################
+# Filter VCF
+##########################################################
+GATK_VCF_FILTERED="Filtered_Q20DP30_GATK_BQSR_sorted_marked_duplicates_aligned_"$PROJECT_SQ".bam.vcf.gz"
+echo "() Filtering VCF (Qual > 20, DP > 30).."
+if [[ ! -e $GATK_VCF_FILTERED ]]
+then
+    bcftools filter -i 'QUAL>20 && DP>30' $GATK_VCF > $GATK_VCF_FILTERED
+fi
+
+##########################################################
+# VCF Statistics
+##########################################################
+echo "() Generating VCF Statistics on Filtered VCF"
+if [[ ! -e "FILTERED_GATK_VCF.stats" ]]
+then
+    bcftools stats $GATK_VCF_FILTERED > FILTERED_GATK_VCF.stats
+fi
 
 ##########################################################
 # Annotate VCFs - VEP
@@ -164,8 +186,6 @@ bcftools stats $GATK_VCF > GATK_VCF.stats
 
 
 echo "() PIPELINE COMPLETE"
-
-
 ##########################################################
 # End of File.
 ##########################################################
