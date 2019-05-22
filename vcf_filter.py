@@ -19,15 +19,34 @@ fname = sys.argv[1]
 with_gnomAD = 0
 threshold = 0.00002
 phenotype = []
-gnomad_AF_columninvcf = 36 #set manually for now, how to import this?
+gnomAD_AF_columninvcf = 0
 
 # =============================================================================
 #  Helper functions
 # =============================================================================
+def get_gnomadAF_loc(filename):
+    global gnomAD_AF_columninvcf 
+    with open(filename) as f:
+        while True:
+            line = f.readline().strip()
+            
+            if line == "": break
+
+            if line[:6] == "##INFO": 
+                if "VEP" in line:
+                    INFO_Cols = line.split(",")[3].split("|")
+                    for i, item in enumerate(INFO_Cols):
+                    
+                        if item == "gnomAD_AF": 
+                            #print(i, [item])
+                            gnomAD_AF_columninvcf = i
+
+        f.close()
+
 def apply_filter(data):
-    global with_gnomAD, threshold, gnomad_AF_columninvcf
+    global with_gnomAD, threshold, gnomAD_AF_columninvcf 
     msg = ""
-    gnomAD_AF = data.split("\t")[7].split("|")[gnomad_AF_columninvcf]
+    gnomAD_AF = data.split("\t")[7].split("|")[gnomAD_AF_columninvcf]
     if gnomAD_AF == "": 
         msg += data
     else:
@@ -44,13 +63,6 @@ def read_vcf(filename):
         while True:
             line = f.readline().strip()
             if line == "": break
-
-            """ use this to figure out gnomad AF location/column in VCF
-            if num_variants == 3: 
-                print(line)
-                print(line.split("\t")[7].split("|")[36])
-                break
-            """    
 
             if line[0] != "#":
                 variant = apply_filter(line)
@@ -69,7 +81,9 @@ def read_vcf(filename):
 # =============================================================================
 #  MAIN          
 # =============================================================================
-            
+#preprocessing to determing where to search for the gnomad_AF data
+get_gnomadAF_loc(sys.argv[1])
+
 total_vars, count = read_vcf(fname)
 
 print()
