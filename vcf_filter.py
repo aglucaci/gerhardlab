@@ -29,18 +29,11 @@ def get_gnomadAF_loc(filename):
     with open(filename) as f:
         while True:
             line = f.readline().strip()
-            
             if line == "": break
 
-            if line[:6] == "##INFO": 
-                if "VEP" in line:
-                    INFO_Cols = line.split(",")[3].split("|")
-                    for i, item in enumerate(INFO_Cols):
-                    
-                        if item == "gnomAD_AF": 
-                            #print(i, [item])
-                            gnomAD_AF_columninvcf = i
-
+            if line[:6] == "##INFO" and "VEP" in line: 
+                for i, item in enumerate(line.split(",")[3].split("|")): 
+                    if item == "gnomAD_AF": gnomAD_AF_columninvcf = i
         f.close()
 
 def apply_filter(data):
